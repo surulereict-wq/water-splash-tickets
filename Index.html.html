@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Splash for the Youths — Tickets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ocean-deep:#052a4a;
+    --ocean-mid:#0a5fa5;
+    --ocean-card:#0d3f6b;
+    --splash:#3fd0e8;
+    --sun:#ffc93c;
+    --coral:#ff5c8a;
+    --leaf:#3ecf7e;
+    --grape:#8a5cf6;
+    --foam:#f4fbff;
+    --ink:#04223c;
+    --line:rgba(244,251,255,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',Arial,sans-serif;
+    color:var(--foam);
+    background:
+      radial-gradient(1000px 500px at 10% -5%, rgba(63,208,232,0.25), transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, rgba(255,201,60,0.14), transparent 55%),
+      linear-gradient(180deg, var(--ocean-deep) 0%, #073a63 55%, #052a4a 100%);
+    min-height:100vh;
+  }
+  .display{font-family:'Baloo 2', 'Inter', sans-serif;}
+  a{color:inherit;}
+
+  /* ===== drifting bubble deco ===== */
+  .bubbles{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0;}
+  .bubble{
+    position:absolute; bottom:-60px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(255,255,255,0.05) 70%);
+    animation:rise linear infinite;
+  }
+  @keyframes rise{
+    0%{transform:translateY(0) translateX(0); opacity:0;}
+    10%{opacity:0.6;}
+    100%{transform:translateY(-120vh) translateX(20px); opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){ .bubble{animation:none; display:none;} }
+
+  .wrap{max-width:980px; margin:0 auto; padding:36px 20px 90px; position:relative; z-index:1;}
+
+  /* ===== HERO ===== */
+  .eyebrow{
+    text-align:center;
+    text-transform:uppercase;
+    letter-spacing:0.28em;
+    font-size:12px;
+    color:var(--sun);
+    font-weight:700;
+    margin-bottom:18px;
+  }
+  .eyebrow .dot{color:var(--coral); margin:0 10px;}
+
+  .hero-title{
+    text-align:center;
+    font-size:clamp(52px, 12vw, 108px);
+    line-height:0.92;
+    margin:0;
+    letter-spacing:0.01em;
+  }
+  .hero-title .l1{
+    color:var(--foam);
+    -webkit-text-stroke:2px rgba(255,255,255,0.25);
+  }
+  .hero-title .l2{
+    color:var(--sun);
+    display:block;
+  }
+  .hero-sub{
+    text-align:center;
+    font-size:clamp(20px,3.6vw,30px);
+    font-weight:700;
+    margin:10px 0 6px;
+    color:var(--foam);
+  }
+  .hero-sub .hi{color:var(--sun);}
+  .tagline{
+    text-align:center;
+    display:inline-block;
+    margin:14px auto 0;
+    padding:8px 18px;
+    background:var(--coral);
+    color:var(--ink);
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.03em;
+    border-radius:999px;
+    transform:rotate(-1.5deg);
+  }
+  .tagline-wrap{text-align:center;}
+
+  /* wave divider */
+  .wave{display:block; width:100%; height:46px; margin:40px 0 6px;}
+
+  /* ===== FEATURES ===== */
+  .features{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin:10px 0 8px;
+  }
+  .feature{
+    text-align:center;
+    padding:16px 8px;
+  }
+  .feature .icon{
+    width:44px;height:44px;
+    margin:0 auto 10px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    background:rgba(63,208,232,0.15);
+    border:1px solid rgba(63,208,232,0.4);
+  }
+  .feature .icon svg{width:22px;height:22px;stroke:var(--splash); fill:none;}
+  .feature .label{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    color:var(--sun);
+    line-height:1.3;
+  }
+  @media (max-width:640px){
+    .features{grid-template-columns:repeat(2,1fr);}
+  }
+
+  /* ===== SECTION TITLES ===== */
+  .section-head{
+    display:flex; align-items:center; gap:14px;
+    margin:54px 0 18px;
+  }
+  .section-head .badge{
+    background:var(--coral);
+    color:var(--ink);
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:7px 16px;
+    border-radius:999px;
+    transform:rotate(-1deg);
+  }
+  .section-head .hint{
+    font-size:13px;
+    color:rgba(244,251,255,0.55);
+  }
+
+  /* ===== TIER CARDS (cart-style, qty per tier) ===== */
+  .tier-list{display:flex; flex-direction:column; gap:12px;}
+  .tier{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    background:var(--ocean-card);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:16px 18px;
+    flex-wrap:wrap;
+  }
+  .tier::before{
+    content:"";
+    position:absolute; left:0; top:12px; bottom:12px; width:4px;
+    border-radius:4px;
+    background:var(--tier-color, var(--splash));
+  }
+  .tier-left{display:flex; align-items:center; gap:14px; padding-left:8px;}
+  .tier-icon{
+    width:38px;height:38px; flex-shrink:0;
+    border-radius:50%;
+    background:var(--tier-color, var(--splash));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink); font-weight:800; font-size:14px;
+  }
+  .tier-info .name{
+    font-weight:800; font-size:15px; letter-spacing:0.01em;
+    color:var(--foam);
+  }
+  .tier-info .price{
+    font-family:'Baloo 2',sans-serif;
+    font-size:20px; color:var(--sun); margin-top:2px;
+  }
+  .tier-info .perk{
+    font-size:12px; color:rgba(244,251,255,0.5); margin-top:2px;
+  }
+
+  .qty-control{display:flex; align-items:center; gap:12px;}
+  .qty-btn{
+    width:32px;height:32px;border-radius:8px;
+    background:rgba(244,251,255,0.08);
+    border:1px solid var(--line);
+    color:var(--foam);
+    font-size:17px; cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    line-height:1;
+  }
+  .qty-btn:hover{border-color:var(--splash);}
+  .qty-num{font-size:17px; min-width:20px; text-align:center; font-weight:700;}
+
+  /* ===== CART SUMMARY ===== */
+  .panel{
+    margin-top:40px;
+    background:var(--ocean-card);
+    border:1.5px solid var(--line);
+    border-radius:18px;
+    padding:26px;
+  }
+  .panel-title{
+    font-family:'Baloo 2',sans-serif;
+    font-size:22px;
+    color:var(--foam);
+    margin:0 0 16px;
+  }
+  .cart-line{
+    display:flex; justify-content:space-between;
+    font-size:14px; color:rgba(244,251,255,0.7);
+    padding:8px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .cart-line:last-of-type{border-bottom:none;}
+  .cart-empty{font-size:13px; color:rgba(244,251,255,0.4); padding:8px 0;}
+
+  input[type=text], input[type=email], input[type=tel]{
+    width:100%;
+    background:rgba(244,251,255,0.06);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:13px 14px;
+    color:var(--foam);
+    font-size:15px;
+    margin-top:12px;
+    font-family:'Inter',sans-serif;
+  }
+  input::placeholder{color:rgba(244,251,255,0.4);}
+  input:focus{outline:2px solid var(--splash); outline-offset:1px;}
+
+  .total-line{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin:20px 0 4px; padding-top:18px; border-top:1px dashed var(--line);
+  }
+  .total-label{font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(244,251,255,0.6); font-weight:700;}
+  .total-value{font-family:'Baloo 2',sans-serif; font-size:34px; color:var(--sun);}
+
+  .pay-btn{
+    width:100%;
+    margin-top:20px;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    background:var(--coral);
+    color:var(--ink);
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition:filter .15s ease, transform .15s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .pay-btn:hover{filter:brightness(1.08); transform:translateY(-1px);}
+  .pay-note{font-size:12px; color:rgba(244,251,255,0.45); margin-top:12px; text-align:center;}
+
+  .footer-note{
+    text-align:center;
+    font-size:13px;
+    color:rgba(244,251,255,0.5);
+    margin-top:38px;
+    font-weight:600;
+  }
+  .footer-note .hi{color:var(--sun);}
+
+  /* success state */
+  .success{
+    display:none;
+    text-align:center;
+    padding:60px 20px;
+  }
+  .success.show{display:block;}
+  .success .code{
+    font-family:'Baloo 2',sans-serif;
+    font-size:42px;
+    color:var(--sun);
+    letter-spacing:0.04em;
+    margin:16px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="bubbles" id="bubbles"></div>
+
+<div class="wrap">
+
+  <div class="eyebrow">REAL PLAY <span class="dot">•</span> REAL PEOPLE <span class="dot">•</span> REAL RELIEF</div>
+
+  <h1 class="hero-title">
+    <span class="l1 display">WATER</span>
+    <span class="l2 display">SPLASH</span>
+  </h1>
+  <p class="hero-sub">For the <span class="hi">Youths</span></p>
+  <div class="tagline-wrap"><span class="tagline">A DAY TO UNWIND. RESET. AND SOAK IT ALL IN.</span></div>
+
+  <svg class="wave" viewBox="0 0 1000 60" preserveAspectRatio="none"><path d="M0,30 C150,60 350,0 500,30 C650,60 850,0 1000,30 L1000,60 L0,60 Z" fill="rgba(63,208,232,0.18)"/></svg>
+
+  <div class="features">
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 4 6 7.5 6 11a6 6 0 1 1-12 0c0-3.5 3-7 6-11z"/></svg></div>
+      <div class="label">Water<br>Games</div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div class="label">Music<br>&amp; DJs</div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.6"/><path d="M3 20c0-3 2.5-5 6-5s6 2 6 5"/><path d="M14 15c2.8 0 5 1.8 5 5"/></svg></div>
+      <div class="label">Good People<br>&amp; Vibes</div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a2 2 0 0 0 2 2v9M6 3v9M9 3v7M18 3c-1.5 0-3 1.5-3 4v3h3v9"/></svg></div>
+      <div class="label">Food &amp;<br>Refreshments</div>
+    </div>
+  </div>
+
+  <!-- Event meta — placeholders, edit freely -->
+  <div class="panel" style="margin-top:34px;">
+    <div style="display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between;">
+      <div>
+        <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--splash); font-weight:700; margin-bottom:6px;">Date &amp; Time</div>
+        <div style="font-size:16px; font-weight:700;">📅 [Add event date &amp; time]</div>
+      </div>
+      <div>
+        <div style="font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--splash); font-weight:700; margin-bottom:6px;">Venue</div>
+        <div style="font-size:16px; font-weight:700;">📍 [Add venue &amp; address]</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="bookingFlow">
+    <div class="section-head">
+      <span class="badge">Tickets</span>
+      <span class="hint">Pick quantities across any tiers</span>
+    </div>
+    <div class="tier-list" id="singleTiers"></div>
+
+    <div class="section-head">
+      <span class="badge" style="background:var(--sun);">VIP Group Tags</span>
+      <span class="hint">Bulk packages — great for squads</span>
+    </div>
+    <div class="tier-list" id="groupTiers"></div>
+
+    <div class="panel">
+      <div class="panel-title">Your Order</div>
+      <div id="cartLines"><div class="cart-empty">No tickets selected yet — pick a tier above.</div></div>
+
+      <input type="text" id="fullName" placeholder="Full name">
+      <input type="email" id="email" placeholder="Email address">
+      <input type="tel" id="phone" placeholder="Phone number">
+
+      <div class="total-line">
+        <span class="total-label">Total</span>
+        <span class="total-value" id="totalValue">₦0</span>
+      </div>
+
+      <button class="pay-btn" id="payBtn">Pay with Paystack</button>
+      <p class="pay-note">Secured by Paystack · Cards, Bank Transfer &amp; USSD accepted</p>
+    </div>
+  </div>
+
+  <div class="success" id="successPanel">
+    <div class="eyebrow" style="text-align:center;">Payment Confirmed</div>
+    <h2 class="display" style="font-size:38px; color:var(--sun); margin:8px 0;">You're In! 💦</h2>
+    <p style="color:rgba(244,251,255,0.7);">Show this reference code at the gate</p>
+    <div class="code" id="refCode">—</div>
+    <p style="font-size:13px; color:rgba(244,251,255,0.5);">Confirmation noted for <span id="successName"></span></p>
+  </div>
+
+  <div class="footer-note">Come ready to get wet, have fun <span class="hi">&amp; make memories!</span></div>
+</div>
+
+<script>
+  // ============ CONFIG ============
+  // This must point to your live backend on Render.
+  const BACKEND_URL = "https://water-splash-backend.onrender.com";
+
+  const singleTierData = [
+    { id:'early',   name:'Early Birds',  price:10000,  perk:'Limited early-entry price',   color:'var(--coral)', abbr:'EB' },
+    { id:'regular', name:'Regular',      price:15000,  perk:'General admission',           color:'var(--ocean-mid)', abbr:'RG' },
+    { id:'stage',   name:'Stage Access', price:30000,  perk:'Up-close to the DJ stage',    color:'var(--leaf)', abbr:'SA' },
+    { id:'vip',     name:'VIP',          price:40000,  perk:'Priority entry + VIP zone',   color:'var(--grape)', abbr:'VIP' },
+  ];
+
+  const groupTierData = [
+    { id:'g4',  name:'4 VIP Tags',  price:300000,   perk:'Bulk pack — squad of 4',  color:'#f2a02e', abbr:'4' },
+    { id:'g7',  name:'7 VIP Tags',  price:500000,   perk:'Bulk pack — squad of 7',  color:'#2e9fdb', abbr:'7' },
+    { id:'g10', name:'10 VIP Tags', price:1000000,  perk:'Bulk pack — squad of 10', color:'#ff5c8a', abbr:'10' },
+    { id:'g12', name:'12 VIP Tags', price:2000000,  perk:'Bulk pack — squad of 12', color:'#c9962f', abbr:'12' },
+  ];
+
+  const qtyState = {}; // id -> qty
+
+  function formatNaira(n){ return '₦' + n.toLocaleString('en-NG'); }
+
+  function renderTierList(containerId, data){
+    const el = document.getElementById(containerId);
+    el.innerHTML = data.map(t => `
+      <div class="tier" style="--tier-color:${t.color}">
+        <div class="tier-left">
+          <div class="tier-icon">${t.abbr}</div>
+          <div class="tier-info">
+            <div class="name">${t.name}</div>
+            <div class="price">${formatNaira(t.price)}</div>
+            <div class="perk">${t.perk}</div>
+          </div>
+        </div>
+        <div class="qty-control">
+          <button class="qty-btn" data-id="${t.id}" data-dir="-1" aria-label="Decrease ${t.name} quantity">−</button>
+          <span class="qty-num" id="qty-${t.id}">0</span>
+          <button class="qty-btn" data-id="${t.id}" data-dir="1" aria-label="Increase ${t.name} quantity">+</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  renderTierList('singleTiers', singleTierData);
+  renderTierList('groupTiers', groupTierData);
+
+  const allTiers = [...singleTierData, ...groupTierData];
+  allTiers.forEach(t => qtyState[t.id] = 0);
+
+  document.getElementById('bookingFlow').addEventListener('click', (e) => {
+    const btn = e.target.closest('.qty-btn');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const dir = parseInt(btn.dataset.dir, 10);
+    qtyState[id] = Math.max(0, Math.min(20, qtyState[id] + dir));
+    document.getElementById('qty-' + id).textContent = qtyState[id];
+    updateCart();
+  });
+
+  function updateCart(){
+    const linesEl = document.getElementById('cartLines');
+    const active = allTiers.filter(t => qtyState[t.id] > 0);
+
+    if(active.length === 0){
+      linesEl.innerHTML = '<div class="cart-empty">No tickets selected yet — pick a tier above.</div>';
+    } else {
+      linesEl.innerHTML = active.map(t => {
+        const qty = qtyState[t.id];
+        const sub = t.price * qty;
+        return `<div class="cart-line"><span>${t.name} × ${qty}</span><span>${formatNaira(sub)}</span></div>`;
+      }).join('');
+    }
+
+    const total = active.reduce((sum, t) => sum + t.price * qtyState[t.id], 0);
+    document.getElementById('totalValue').textContent = formatNaira(total);
+    return total;
+  }
+
+  document.getElementById('payBtn').addEventListener('click', async () => {
+    const payBtn = document.getElementById('payBtn');
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const total = updateCart();
+
+    if(total <= 0){
+      alert('Please select at least one ticket.');
+      return;
+    }
+    if(!fullName || !email || !phone){
+      alert('Please fill in your name, email, and phone number.');
+      return;
+    }
+    if(!email.includes('@')){
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    const items = allTiers
+      .filter(t => qtyState[t.id] > 0)
+      .map(t => ({ tier: t.id, quantity: qtyState[t.id] }));
+
+    payBtn.disabled = true;
+    payBtn.textContent = 'Starting checkout…';
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          buyer_name: fullName,
+          buyer_email: email,
+          buyer_phone: phone,
+          items: items
+        })
+      });
+
+      const data = await res.json();
+
+      if(!res.ok){
+        throw new Error(data.error || 'Something went wrong starting checkout.');
+      }
+
+      // Redirect to Paystack's secure checkout page
+      window.location.href = data.authorization_url;
+
+    } catch (err) {
+      alert('Could not start checkout: ' + err.message + '\n\nPlease check your connection and try again.');
+      payBtn.disabled = false;
+      payBtn.textContent = 'Pay with Paystack';
+    }
+  });
+
+  // ambient rising bubbles
+  const bubbleContainer = document.getElementById('bubbles');
+  const bubbleCount = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 14;
+  for(let i=0;i<bubbleCount;i++){
+    const b = document.createElement('div');
+    const size = 6 + Math.random()*18;
+    b.className = 'bubble';
+    b.style.width = size+'px';
+    b.style.height = size+'px';
+    b.style.left = Math.random()*100+'%';
+    b.style.animationDuration = (10 + Math.random()*14)+'s';
+    b.style.animationDelay = (Math.random()*14)+'s';
+    bubbleContainer.appendChild(b);
+  }
+</script>
+
+</body>
+</html>
