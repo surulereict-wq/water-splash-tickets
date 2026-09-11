@@ -357,11 +357,7 @@
     </div>
     <div class="tier-list" id="singleTiers"></div>
 
-    <div class="section-head">
-      <span class="badge" style="background:var(--sun);">VIP Group Tags</span>
-      <span class="hint">Bulk packages — great for squads</span>
-    </div>
-    <div class="tier-list" id="groupTiers"></div>
+  
 
     <div class="panel">
       <div class="panel-title">Your Order</div>
@@ -404,12 +400,7 @@
     { id:'vip',     name:'VIP',          price:40000,  perk:'Priority entry + VIP zone',   color:'var(--grape)', abbr:'VIP' },
   ];
 
-  const groupTierData = [
-    { id:'g4',  name:'4 VIP Tags',  price:300000,   perk:'Bulk pack — squad of 4',  color:'#f2a02e', abbr:'4' },
-    { id:'g7',  name:'7 VIP Tags',  price:500000,   perk:'Bulk pack — squad of 7',  color:'#2e9fdb', abbr:'7' },
-    { id:'g10', name:'10 VIP Tags', price:1000000,  perk:'Bulk pack — squad of 10', color:'#ff5c8a', abbr:'10' },
-    { id:'g12', name:'12 VIP Tags', price:2000000,  perk:'Bulk pack — squad of 12', color:'#c9962f', abbr:'12' },
-  ];
+
 
   const qtyState = {}; // id -> qty
 
@@ -437,9 +428,9 @@
   }
 
   renderTierList('singleTiers', singleTierData);
-  renderTierList('groupTiers', groupTierData);
+  
 
-  const allTiers = [...singleTierData, ...groupTierData];
+  const allTiers = [...singleTierData];
   allTiers.forEach(t => qtyState[t.id] = 0);
 
   document.getElementById('bookingFlow').addEventListener('click', (e) => {
