@@ -515,7 +515,29 @@
       payBtn.textContent = 'Pay with Paystack';
     }
   });
-
+  async function applyAvailability(){
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/availability`);
+      const data = await res.json();
+      allTiers.forEach(t => {
+        const info = data[t.id];
+        if(!info) return;
+        const card = document.querySelector(`.qty-btn[data-id="${t.id}"]`)?.closest('.tier');
+        if(!card) return;
+        if(info.soldOut){
+          card.style.opacity = '0.5';
+          card.querySelectorAll('.qty-btn').forEach(b => b.disabled = true);
+          const nameEl = card.querySelector('.tier-info .name');
+          if(nameEl && !nameEl.textContent.includes('SOLD OUT')){
+            nameEl.textContent += ' — SOLD OUT';
+          }
+        }
+      });
+    } catch (err) {
+      console.error('[availability] could not load:', err.message);
+    }
+  }
+  applyAvailability();
   // ambient rising bubbles
   const bubbleContainer = document.getElementById('bubbles');
   const bubbleCount = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 14;
