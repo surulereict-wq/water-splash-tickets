@@ -52,14 +52,44 @@
   </div>
 
   <script>
+    const BACKEND_URL = "https://water-splash-backend.onrender.com";
     const params = new URLSearchParams(window.location.search);
     const reference = params.get('reference') || params.get('trxref');
+
+    function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+    async function confirmPayment(){
+      const maxAttempts = 6;
+      for(let attempt = 1; attempt <= maxAttempts; attempt++){
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/checkout/confirm/${encodeURIComponent(reference)}`);
+          const data = await res.json();
+
+          if(data.status === 'fulfilled'){
+            document.getElementById('mainMsg').innerHTML =
+              'Payment confirmed! <span class="status paid">Your ticket is on its way to your email 🎫</span>';
+            return;
+          }
+          if(res.status === 404){
+            document.getElementById('mainMsg').innerHTML =
+              '<span class="status failed">We could not find this order.</span> If you were charged, please contact us with your reference below.';
+            return;
+          }
+          // status is "pending" — wait and retry
+        } catch (err) {
+          // network hiccup — just retry
+        }
+        await sleep(3000);
+      }
+      // Ran out of attempts — still pending
+      document.getElementById('mainMsg').innerHTML =
+        '<span class="status pending">Still confirming your payment.</span> This can take a minute — your ticket will be emailed automatically once confirmed.';
+    }
 
     if(reference){
       document.getElementById('refCode').textContent = reference;
       document.getElementById('refBox').style.display = 'block';
-      document.getElementById('mainMsg').textContent =
-        "Your payment is being confirmed. This usually takes a few seconds.";
+      confirmPayment();
     } else {
       document.getElementById('mainMsg').textContent =
         "We couldn't find a payment reference. If you completed a payment, please check your email for your ticket.";
