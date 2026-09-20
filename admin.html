@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Splash — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ocean-deep:#052a4a;
+    --ocean-card:#0d3f6b;
+    --splash:#3fd0e8;
+    --sun:#ffc93c;
+    --coral:#ff5c8a;
+    --leaf:#3ecf7e;
+    --foam:#f4fbff;
+    --line:rgba(244,251,255,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',Arial,sans-serif;
+    color:var(--foam);
+    background:linear-gradient(180deg, var(--ocean-deep) 0%, #073a63 55%, #052a4a 100%);
+    min-height:100vh;
+  }
+  .display{font-family:'Baloo 2', sans-serif;}
+  .wrap{max-width:760px; margin:0 auto; padding:50px 20px 80px;}
+
+  h1{font-size:26px; margin:0 0 6px;}
+  .subtitle{color:rgba(244,251,255,0.55); font-size:14px; margin:0 0 30px;}
+
+  .panel{
+    background:var(--ocean-card);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:24px;
+    margin-bottom:18px;
+  }
+
+  input[type=password]{
+    width:100%;
+    background:rgba(244,251,255,0.06);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:13px 14px;
+    color:var(--foam);
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+  }
+  input::placeholder{color:rgba(244,251,255,0.4);}
+
+  button{
+    font-family:'Inter',sans-serif;
+    border:none;
+    border-radius:10px;
+    padding:13px 18px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:filter .15s ease;
+  }
+  button:hover{filter:brightness(1.08);}
+  .btn-primary{background:var(--coral); color:#04223c;}
+  .btn-secondary{background:rgba(244,251,255,0.1); color:var(--foam); border:1px solid var(--line);}
+
+  #loginError{color:var(--coral); font-size:13px; margin-top:10px; display:none;}
+
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:6px;}
+  .stat{
+    background:rgba(244,251,255,0.05);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px;
+    text-align:center;
+  }
+  .stat .value{font-family:'Baloo 2',sans-serif; font-size:26px; color:var(--sun);}
+  .stat .label{font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:rgba(244,251,255,0.55); margin-top:4px;}
+
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th, td{text-align:left; padding:10px 8px; font-size:14px; border-bottom:1px solid var(--line);}
+  th{color:rgba(244,251,255,0.5); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; font-weight:700;}
+
+  .row-actions{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;}
+  .updated-note{font-size:12px; color:rgba(244,251,255,0.4); margin-top:14px; text-align:right;}
+
+  #dashboard{display:none;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1 class="display">🌊 Water Splash — Admin</h1>
+  <p class="subtitle">Sales tracking & attendee export</p>
+
+  <div class="panel" id="loginPanel">
+    <p style="margin-top:0;">Enter the admin key to view sales progress.</p>
+    <input type="password" id="keyInput" placeholder="Admin key" autocomplete="off">
+    <div id="loginError">Incorrect key — please try again.</div>
+    <div class="row-actions">
+      <button class="btn-primary" id="unlockBtn">Unlock Dashboard</button>
+    </div>
+  </div>
+
+  <div id="dashboard">
+    <div class="panel">
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="value" id="statRevenue">₦0</div>
+          <div class="label">Total Revenue</div>
+        </div>
+        <div class="stat">
+          <div class="value" id="statOrders">0</div>
+          <div class="label">Paid Orders</div>
+        </div>
+        <div class="stat">
+          <div class="value" id="statTickets">0</div>
+          <div class="label">Tickets Sold</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Tier</th><th>Sold</th><th>Revenue</th></tr></thead>
+        <tbody id="tierRows"></tbody>
+      </table>
+      <div class="updated-note" id="updatedNote"></div>
+    </div>
+
+    <div class="panel">
+      <div class="row-actions">
+        <button class="btn-secondary" id="refreshBtn">🔄 Refresh</button>
+        <button class="btn-primary" id="downloadBtn">⬇ Download Attendee List (CSV)</button>
+        <button class="btn-secondary" id="logoutBtn">Log Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const BACKEND_URL = "https://water-splash-backend.onrender.com";
+  const STORAGE_KEY = "ws_admin_key";
+
+  function formatNaira(n){ return '₦' + Number(n || 0).toLocaleString('en-NG'); }
+
+  async function loadSummary(key){
+    const res = await fetch(`${BACKEND_URL}/api/summary`, {
+      headers: { "x-admin-key": key }
+    });
+    if(!res.ok) throw new Error("unauthorized");
+    return res.json();
+  }
+
+  function renderSummary(data){
+    document.getElementById('statRevenue').textContent = formatNaira(data.total_revenue);
+    document.getElementById('statOrders').textContent = data.total_orders;
+
+    let totalTickets = 0;
+    const rows = Object.entries(data.by_tier || {}).map(([tier, info]) => {
+      totalTickets += info.count;
+      return `<tr><td>${tier}</td><td>${info.count}</td><td>${formatNaira(info.revenue)}</td></tr>`;
+    }).join('');
+
+    document.getElementById('statTickets').textContent = totalTickets;
+    document.getElementById('tierRows').innerHTML = rows || '<tr><td colspan="3">No sales yet.</td></tr>';
+    document.getElementById('updatedNote').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  }
+
+  function showDashboard(){
+    document.getElementById('loginPanel').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  function showLogin(errorMsg){
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginPanel').style.display = 'block';
+    document.getElementById('loginError').style.display = errorMsg ? 'block' : 'none';
+  }
+
+  async function attemptUnlock(key){
+    try {
+      const data = await loadSummary(key);
+      sessionStorage.setItem(STORAGE_KEY, key);
+      renderSummary(data);
+      showDashboard();
+    } catch (err) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      showLogin(true);
+    }
+  }
+
+  document.getElementById('unlockBtn').addEventListener('click', () => {
+    const key = document.getElementById('keyInput').value.trim();
+    if(!key) return;
+    attemptUnlock(key);
+  });
+
+  document.getElementById('keyInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') document.getElementById('unlockBtn').click();
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', async () => {
+    const key = sessionStorage.getItem(STORAGE_KEY);
+    if(!key) return showLogin(false);
+    try {
+      const data = await loadSummary(key);
+      renderSummary(data);
+    } catch (err) {
+      showLogin(true);
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    document.getElementById('keyInput').value = '';
+    showLogin(false);
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', async () => {
+    const key = sessionStorage.getItem(STORAGE_KEY);
+    if(!key) return showLogin(false);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/tickets/export`, {
+        headers: { "x-admin-key": key }
+      });
+      if(!res.ok) throw new Error("unauthorized");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'water-splash-attendees.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('Could not download the file. Please try refreshing and logging in again.');
+    }
+  });
+
+  // Auto-unlock if a key is already saved for this browser tab session.
+  const savedKey = sessionStorage.getItem(STORAGE_KEY);
+  if(savedKey){
+    attemptUnlock(savedKey);
+  }
+</script>
+
+</body>
+</html>
